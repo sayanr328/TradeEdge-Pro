@@ -283,19 +283,19 @@
                         <div>
                             <div class="flex justify-between text-xs mb-1">
                                 <span class="text-green-400">Take Profit</span>
-                                <span id="tpProgress">0%</span>
+                                <span id="sidebarTPProgress">0% / 5%</span>
                             </div>
                             <div class="h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
-                                <div id="tpBar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all" style="width: 0%"></div>
+                                <div id="sidebarTPBar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all" style="width: 0%"></div>
                             </div>
                         </div>
                         <div>
                             <div class="flex justify-between text-xs mb-1">
                                 <span class="text-red-400">Stop Loss</span>
-                                <span id="slProgress">0%</span>
+                                <span id="sidebarSLProgress">0% / 3%</span>
                             </div>
                             <div class="h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
-                                <div id="slBar" class="h-full bg-gradient-to-r from-red-500 to-orange-400 transition-all" style="width: 0%"></div>
+                                <div id="sidebarSLBar" class="h-full bg-gradient-to-r from-red-500 to-orange-400 transition-all" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -1390,6 +1390,7 @@
             localStorage.setItem('dailyTP', document.getElementById('dailyTPInput').value);
             localStorage.setItem('dailySL', document.getElementById('dailySLInput').value);
             updateTPSLDisplay();
+            updateDashboard(); // This will update sidebar too
             showToast('TP/SL saved!');
         }
 
@@ -1400,6 +1401,18 @@
             document.getElementById('dailySLDisplay').textContent = '-' + sl + '%';
             document.getElementById('dailyTPInput').value = tp;
             document.getElementById('dailySLInput').value = sl;
+            
+            // Update sidebar with new target values
+            const sidebarTPProgress = document.getElementById('sidebarTPProgress');
+            const sidebarSLProgress = document.getElementById('sidebarSLProgress');
+            if (sidebarTPProgress) {
+                const currentTP = sidebarTPProgress.textContent.split('/')[0].trim();
+                sidebarTPProgress.textContent = currentTP + ' / ' + tp + '%';
+            }
+            if (sidebarSLProgress) {
+                const currentSL = sidebarSLProgress.textContent.split('/')[0].trim();
+                sidebarSLProgress.textContent = currentSL + ' / ' + sl + '%';
+            }
         }
 
         function updateTPSLBars(todayPL, balance) {
@@ -1412,6 +1425,12 @@
             const tpslStatus = document.getElementById('tpslStatus');
             const tpslHitBadge = document.getElementById('tpslHitBadge');
             
+            // Update sidebar Daily Targets
+            const sidebarTPProgress = document.getElementById('sidebarTPProgress');
+            const sidebarSLProgress = document.getElementById('sidebarSLProgress');
+            const sidebarTPBar = document.getElementById('sidebarTPBar');
+            const sidebarSLBar = document.getElementById('sidebarSLBar');
+            
             // Reset styles
             tpslCard.classList.remove('border-green-500', 'border-red-500', 'shadow-lg', 'shadow-green-500/30', 'shadow-red-500/30');
             tpslHitBadge.classList.add('hidden');
@@ -1422,6 +1441,12 @@
                 document.getElementById('tpProgress').textContent = plPercent.toFixed(1) + '% / ' + tp + '%';
                 document.getElementById('slBar').style.width = '0%';
                 document.getElementById('slProgress').textContent = '0% / ' + sl + '%';
+                
+                // Update sidebar
+                if (sidebarTPProgress) sidebarTPProgress.textContent = plPercent.toFixed(1) + '% / ' + tp + '%';
+                if (sidebarSLProgress) sidebarSLProgress.textContent = '0% / ' + sl + '%';
+                if (sidebarTPBar) sidebarTPBar.style.width = tpProgress + '%';
+                if (sidebarSLBar) sidebarSLBar.style.width = '0%';
                 
                 // Check if TP is hit
                 if (plPercent >= tp) {
@@ -1445,6 +1470,12 @@
                 document.getElementById('slProgress').textContent = Math.abs(plPercent).toFixed(1) + '% / ' + sl + '%';
                 document.getElementById('tpBar').style.width = '0%';
                 document.getElementById('tpProgress').textContent = '0% / ' + tp + '%';
+                
+                // Update sidebar
+                if (sidebarTPProgress) sidebarTPProgress.textContent = '0% / ' + tp + '%';
+                if (sidebarSLProgress) sidebarSLProgress.textContent = Math.abs(plPercent).toFixed(1) + '% / ' + sl + '%';
+                if (sidebarTPBar) sidebarTPBar.style.width = '0%';
+                if (sidebarSLBar) sidebarSLBar.style.width = slProgress + '%';
                 
                 // Check if SL is hit
                 if (Math.abs(plPercent) >= sl) {
